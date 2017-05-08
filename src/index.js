@@ -1,20 +1,16 @@
-import redis from 'redis';
-import primus from 'primus';
+import InboundRouter from './libs/InboundRouter/InboundRouter';
+import OutboundRouter from './libs/OutboundRouter/OutboundRouter';
+import EventEmitter from './libs/EventEmitter/EventEmitter';
+import Consts from './configs/constants';
 
-import InboundRouter from 'libs/InboundRouter/InboundRouter';
-import OutboundRouter from 'libs/OutboundRouter/OutboundRouter';
-import EventEmitter from 'libs/EventEmitter/EventEmitter';
-
-import Consts from 'configs/constants';
-
-export class SimpleChat extends EventEmitter {
+export default class SimpleChat extends EventEmitter {
   constructor({ transport, storeToSubscribe, storeToPublish, inboundRouts, outboundRoutes }) {
+    super();
     this.transport = transport;
     this.storeToSubscribe = storeToSubscribe;
     this.storeToPublish = storeToPublish;
     this.InboundRouter = new InboundRouter(inboundRouts || []);
     this.OutboundRouter = new OutboundRouter(outboundRoutes || []);
-
     this.isReady = false;
   }
 
@@ -75,4 +71,3 @@ export class SimpleChat extends EventEmitter {
 
   }
 }
-

@@ -1,6 +1,6 @@
 {
   "name": "simple-chat",
-  "version": "0.0.1",
+  "version": "0.0.5",
   "description": "server side chat handling request, responses, presistance",
   "main": "./lib/index.js",
   "scripts": {
@@ -78,19 +78,8 @@
   },
   "dependencies": {
     "bluebird": "^3.5.0",
-    "concat-stream": "^1.6.0",
-    "connect-redis": "^3.3.0",
-    "engine.io": "^3.1.0",
     "lodash": "^4.17.4",
-    "metroplex": "^1.0.0",
-    "moment": "^2.18.1",
-    "primus": "^7.0.1",
-    "primus-cluster": "^1.1.0",
-    "primus-emitter": "^3.1.1",
-    "primus-multiplex": "^3.2.1",
-    "primus-resource": "^2.0.6",
-    "primus-rooms": "^3.4.1",
-    "redis": "^2.7.1"
+    "moment": "^2.18.1"
   },
   "browserify": {
     "transform": [
