@@ -38,7 +38,7 @@ export default class SimpleChat extends EventEmitter {
     return this.InboundRouter;
   }
 
-  OutboundRouter() {
+  outboundRouter() {
     return this.OutboundRouter;
   }
 
