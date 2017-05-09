@@ -1,3 +1,5 @@
+export const REDIS_CHANNEL = 'SIMPLE-CHAT';
+
 /* Statuses */
 export const SENDING = 'SENDING'; //after initial sending before server acknowledged.
 export const ACKNOWLEDGED = 'ACKNOWLEDGED'; //server acknowledged it received the message.
