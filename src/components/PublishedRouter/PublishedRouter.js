@@ -33,7 +33,7 @@ function getRoutes() {
   return routes;
 }
 
-function use({ path, sendTo  }) {
+function use({ path, sendTo, controller }) {
   
   if ( typeof path !== 'string') {
     throw new Error('Supplied path parameter is not a string');
@@ -44,9 +44,10 @@ function use({ path, sendTo  }) {
   });
 
   if( found ) {
-    found.sendTo = typeof sendTo === 'undefined' ? found.sendTo : sendTo; // set or override "sendTo".
+    found.sendTo = typeof sendTo === 'function' ? sendTo : found.sendTo; // set or override "sendTo".
+    found.controller = typeof controller === 'function' ? controller : found.controller; // set or override "sendTo".
   } else {
-    routes.push({ path, sendTo });
+    routes.push({ path, sendTo, controller });
   }
 }
 

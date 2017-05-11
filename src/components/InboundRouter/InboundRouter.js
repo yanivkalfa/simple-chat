@@ -33,7 +33,7 @@ function getRoutes() {
   return routes;
 }
 
-function use({ path, hasAccess, success, failure }) {
+function use({ path, hasAccess, success, failure, controller }) {
   
   if ( typeof path !== 'string') {
     throw new Error('Supplied path parameter is not a string');
@@ -44,11 +44,12 @@ function use({ path, hasAccess, success, failure }) {
   });
 
   if( found ) {
-    found.success = typeof success === 'undefined' ? found.success : success; // set or override "success".
-    found.failure = typeof failure === 'undefined' ? found.failure : failure; // set or override "failure".
-    found.hasAccess = typeof hasAccess === 'undefined' ? found.hasAccess : hasAccess; // set or override "hasAccess".
+    found.hasAccess = typeof hasAccess === 'function' ? hasAccess : found.hasAccess ; // set or override "hasAccess".
+    found.success = typeof success === 'function' ? success : found.success  ; // set or override "success".
+    found.failure = typeof failure === 'function' ? failure : found.failure ; // set or override "failure".
+    found.controller = typeof controller === 'function' ? controller : found.controller; // set or override "controller".
   } else {
-    routes.push({ path, hasAccess, success, failure });
+    routes.push({ path, hasAccess, success, failure, controller });
   }
 }
 
