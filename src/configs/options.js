@@ -35,5 +35,5 @@ export function getStoreToPublish() {
 }
 
 export function getIsReady() {
-  return IsReady;
+  return isReady;
 }

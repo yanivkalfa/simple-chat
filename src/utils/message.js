@@ -1,6 +1,7 @@
 import * as date from 'date';
+import uuid from 'uuid';
 
-export function createToClient({ headers, path, payload }) {
+export function createMessage({ headers, path, payload }) {
   return {
     headers: {
       timestamp: date.toUTC(),
@@ -11,13 +12,10 @@ export function createToClient({ headers, path, payload }) {
   };
 }
 
-export function createToPublish(path, payload, headers) {
+export function createToPublish({ me, payload }) {
   return JSON.stringify({
-    headers: {
-      timestamp: date.toUTC(),
-      ...headers
-    },
-    path,
-    payload
+    me,
+    payload,
+    timestamp: date.toUTC()
   });
 }

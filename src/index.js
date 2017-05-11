@@ -1,95 +1,107 @@
 import P from 'bluebird';
-import PublishedRouter from './libs/PublishedRouter/PublishedRouter';
-import InboundRouter from './libs/InboundRouter/InboundRouter';
-import OutboundRouter from './libs/OutboundRouter/OutboundRouter';
-import * as events from './components/Events';
-import Consts from './configs/constants';
-
+import uuid from 'uuid';
+import InboundRouter from './components/InboundRouter/InboundRouter';
+import PublishedRouter from './components/PublishedRouter/PublishedRouter';
+import * as Events from './components/Events/Events';
 import * as message from './utils/message';
+import { createMe } from './utils/general';
 
-export default class SimpleChat extends EventEmitter {
-  constructor({ transport, storeToSubscribe, storeToPublish, inboundRouts, outboundRoutes, publishedRoutes }) {
-    super();
-    this.transport = transport;
-    this.storeToSubscribe = storeToSubscribe;
-    this.storeToPublish = storeToPublish;
-    this.PublishedRouter = new PublishedRouter(publishedRoutes || []);
-    this.InboundRouter = new InboundRouter(inboundRouts || []);
-    this.OutboundRouter = new OutboundRouter(outboundRoutes || []);
+import Consts from './configs/constants';
+import * as Options from './configs/Options';
 
-    this.isReady = false;
+function start() {
+
+  let transport = Options.getTransport();
+  let storeToSubscribe = Options.getStoreToSubscribe();
+  let storeToPublish = Options.getStoreToPublish();
+
+  let inboundRouter = InboundRouter();
+  let publishedRouter = PublishedRouter();
+
+  //let isReady = Options.getIsReady();
+  let events = Events.get();
+
+  if( !storeToSubscribe || !storeToPublish ) {
+    return false;
   }
 
-  setTransport(transport) {
-    this.transport = transport;
-  }
+  Options.setIsReady(true);
+  storeToSubscribe.subscribe(Consts.REDIS_CHANNEL);
+  storeToSubscribe.on("message", function (channel, message) {
+    if (channel == Consts.REDIS_CHANNEL) {
+      let msg = null;
+      try {
+        msg = JSON.parse(message);
+      } catch(e) {
+        console.log('Unable to parse message');
+      }
 
-  setStoreToSubscribe(storeToSubscribe) {
-    this.storeToSubscribe = storeToSubscribe;
-  }
+      if ( !msg ) {
+        return false;
+      }
 
-  setStoreToPublish(storeToPublish) {
-    this.storeToPublish = storeToPublish;
-  }
-
-  setPublishedRouter(publishedRouter) {
-    this.PublishedRouter = publishedRouter;
-  }
-
-  setInboundRouter(inboundRouter) {
-    this.InboundRouter = inboundRouter;
-  }
-
-  setOutboundRouter(outboundRouter) {
-    this.OutboundRouter = outboundRouter;
-  }
-
-  publishedRouter() {
-    return this.PublishedRouter;
-  }
-
-  inboundRouter() {
-    return this.InboundRouter;
-  }
-
-  outboundRouter() {
-    return this.OutboundRouter;
-  }
-
-  start() {
-
-    if( !this.storeToSubscribe || !this.storeToPublish ) {
-      return false;
+      publishedRouter.route({
+        path: msg.payload.path,
+        me: msg.me,
+        msg: msg.payload
+      });
     }
+  });
 
-    this.storeToSubscribe.subscribe(Consts.REDIS_CHANNEL);
-
-    this.transport.on('connection', (client)=> {
-      let connectionCbs =  this.events.connection && Array.isArray(this.events.connection) || [];
-      P.all(connectionCbs).then((results) => {
-        const userName = results[0].userName || null;
-        this.storeToPublish.publish(Consts.REDIS_CHANNEL, message.createToPublish('presence/userOnline', { userName }));
-      });
-
-
-      client.on('inboundMessage', function (msg) {
-        this.InboundRouter.route(this.storeToPublish, msg.path, client, msg);
-
-      });
+  transport.on('connection', (client) => {
+    client.__uuid = uuid.v1();
+    let connectionCbs = events.connection && Array.isArray(events.connection) || [];
+    P.all(connectionCbs).then((results) => {
+      client.__user = results[0] || null;
+      storeToPublish.publish(Consts.REDIS_CHANNEL, message.createToPublish({
+        me: createMe(client),
+        payload: message.createMessage({
+          path: 'presence/userOnline',
+          payload: {
+            ...createMe(client),
+            messageUUID: uuid.v1()
+          }
+        })
+      }));
     });
 
-    this.transport.on('disconnection', (client)=> {
-      this.storeToSubscribe.unsubscribe(Consts.REDIS_CHANNEL);
-      let disconnectionCbs =  this.events.disconnection && Array.isArray(this.events.disconnection) || [];
 
-      P.all(disconnectionCbs).then(() => {
-        this.StorePublisher.publish('presence/userOffline', client, client.__user);
-        client.__user = null;
-      });
+    client.on('inboundMessage', function (msg) {
+      inboundRouter.route({ path: msg.path, client, msg });
     });
+  });
 
-  }
+  transport.on('disconnection', (client)=> {
+    let disconnectionCbs =  events.disconnection && Array.isArray(events.disconnection) || [];
+    P.all(disconnectionCbs).then(() => {
+      storeToPublish.publish(Consts.REDIS_CHANNEL, message.createToPublish({
+        me: createMe(client),
+        payload: message.createMessage({
+          path: 'presence/userOffline',
+          payload: {
+            ...createMe(client),
+            messageUUID: uuid.v1()
+          }
+        })
+      }));
+      client.__uuid = null;
+      client.__user = null;
+    });
+  });
 }
 
+export default function init({ transport, storeToSubscribe, storeToPublish, inboundRouts, outboundRoutes, publishedRoutes }) {
+  Options.setTransport(transport);
+  Options.setStoreToSubscribe(storeToSubscribe);
+  Options.setStoreToPublish(storeToPublish);
+  Options.setIsReady(false);
 
-// add to
+  return {
+    inboundRouter: InboundRouter(inboundRouts),
+    outboundRouter: OutboundRouter(outboundRoutes),
+    publishedRouter: PublishedRouter(publishedRoutes),
+    ...Options,
+    ...Events,
+    start: start
+  }
+}
