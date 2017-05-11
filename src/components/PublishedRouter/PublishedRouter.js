@@ -45,7 +45,7 @@ function use({ path, sendTo, controller }) {
 
   if( found ) {
     found.sendTo = typeof sendTo === 'function' ? sendTo : found.sendTo; // set or override "sendTo".
-    found.controller = typeof controller === 'function' ? controller : found.controller; // set or override "sendTo".
+    found.controller = typeof controller === 'function' ? controller : found.controller; // set or override "controller".
   } else {
     routes.push({ path, sendTo, controller });
   }

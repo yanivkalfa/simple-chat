@@ -62,7 +62,7 @@ function remove(path){
   return false;
 }
 
-function route({ path, client, msg }) {
+function route({ path, sendTo = 'all', msg }) {
   let l = routes.length, i = 0;
   let res = {};
 
@@ -71,15 +71,15 @@ function route({ path, client, msg }) {
     if (route.path === path) {
       return P.try(()=>{
         let alterMsg = route.alterMsg || emptyPromise;
-        return alterMsg({ path, client, msg });
+        return alterMsg({ path, sendTo, msg });
       }).then((  )=> {
         res = { success: true, error: null };
         let controller = route.controller || emptyPromise;
-        return controller({ path, client, msg, res, success: true });
+        return controller({ path, sendTo, msg, res, success: true });
       }).catch((error) => {
         res = { success: false, error };
         let controller = route.controller || emptyPromise;
-        controller({ path, client, msg, res, success: false });
+        controller({ path, sendTo, msg, res, success: false });
       });
     }
   }

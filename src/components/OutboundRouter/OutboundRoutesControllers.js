@@ -1,12 +1,23 @@
-export function outboundMessage() {}
-export function outboundMessageStatus() {}
-export function outboundAcknowledgement() {}
-export function outboundChatState() {}
-export function outboundLoggedInElsewhere() {}
-export function outboundRosterEvent() {}
-export function outboundInvitation() {}
-export function outboundRoomEvent() {}
-export function outboundPresence() {}
+import * as Options from '../../configs/Options';
+
+export function outboundMessage({ path, sendTo, msg, res, success }) {}
+export function outboundMessageStatus({ path, sendTo, msg, res, success }) {}
+export function outboundAcknowledgement({ path, sendTo, msg, res, success }) {}
+export function outboundChatState({ path, sendTo, msg, res, success }) {}
+export function outboundLoggedInElsewhere({ path, sendTo, msg, res, success }) {}
+export function outboundRosterEvent({ path, sendTo, msg, res, success }) {}
+export function outboundInvitation({ path, sendTo, msg, res, success }) {}
+export function outboundRoomEvent({ path, sendTo, msg, res, success }) {}
+export function outboundPresence({ path, sendTo, msg, res, success }) {
+  if ( success ) {
+    if (sendTo === 'all') {
+      let transport = Options.getTransport();
+      transport.broadcast(msg);
+    } else {
+      sendTo.write(msg)
+    }
+  }
+}
 
 
 
