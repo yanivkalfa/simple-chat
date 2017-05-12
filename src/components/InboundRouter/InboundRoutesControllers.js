@@ -1,9 +1,11 @@
-require('source-map-support').install();
-
 import P from 'bluebird';
+import uuid from 'uuid';
 
 import OutboundRouter from '../OutboundRouter/OutboundRouter';
 import * as Options from '../../configs/options';
+import * as Consts from '../../configs/constants';
+import * as message from '../../utils/message';
+import { createMe } from '../../utils/general';
 
 
 export function messageSendMessage({ path, client, msg, res, success }) {}
@@ -22,8 +24,30 @@ export function availabilitySetAvailability({ path, client, msg, res, success })
 
 export function presenceUserOnline({ path, client, msg, res, success }) {
   let storeToPublish = Options.getStoreToPublish();
-  let outboundRouter = OutboundRouter();
-  outboundRouter.route({ path });
+  let msgToPublish = {
+    me: createMe(client),
+    payload: message.createMessage({
+      path,
+      payload: {
+        ...createMe(client),
+        messageUUID: uuid.v1()
+      }
+    })
+  };
+  storeToPublish.publish(Consts.REDIS_CHANNEL, message.createToPublish(msgToPublish));
 }
 
-export function presenceUserOffline({ path, client, msg, res, success }) {}
+export function presenceUserOffline({ path, client, msg, res, success }) {
+  let storeToPublish = Options.getStoreToPublish();
+  let msgToPublish = {
+    me: createMe(client),
+    payload: message.createMessage({
+      path,
+      payload: {
+        ...createMe(client),
+        messageUUID: uuid.v1()
+      }
+    })
+  };
+  storeToPublish.publish(Consts.REDIS_CHANNEL, message.createToPublish(msgToPublish));
+}

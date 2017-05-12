@@ -1,5 +1,3 @@
-require('source-map-support').install();
-
 import P from 'bluebird';
 import * as Ctrls from './InboundRoutesControllers';
 import { emptyPromise } from '../../utils/functions';

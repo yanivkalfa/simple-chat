@@ -1,13 +1,10 @@
-require('source-map-support').install();
+//require('source-map-support').install();
 
 import P from 'bluebird';
 import uuid from 'uuid';
 import InboundRouter from './components/InboundRouter/InboundRouter';
 import OutboundRouter from './components/OutboundRouter/OutboundRouter';
 import PublishedRouter from './components/PublishedRouter/PublishedRouter';
-import * as Events from './components/Events/Events';
-import * as message from './utils/message';
-import { createMe } from './utils/general';
 
 import * as Consts from './configs/constants';
 import * as Options from './configs/options';
@@ -20,9 +17,6 @@ function start() {
 
   let inboundRouter = InboundRouter();
   let publishedRouter = PublishedRouter();
-
-  //let isReady = Options.getIsReady();
-  let events = Events.get();
 
   if( !storeToSubscribe || !storeToPublish ) {
     return false;
@@ -53,21 +47,7 @@ function start() {
 
   transport.on('connection', (client) => {
     client.__uuid = uuid.v1();
-    let connectionCbs = events.connection && Array.isArray(events.connection) || [];
-    P.all(connectionCbs).then((results) => {
-      client.__user = results[0] || null;
-      storeToPublish.publish(Consts.REDIS_CHANNEL, message.createToPublish({
-        me: createMe(client),
-        payload: message.createMessage({
-          path: 'presence/userOnline',
-          payload: {
-            ...createMe(client),
-            messageUUID: uuid.v1()
-          }
-        })
-      }));
-    });
-
+    inboundRouter.route({ path: 'presence/userOnline', client });
 
     client.on('inboundMessage', function (msg) {
       inboundRouter.route({ path: msg.path, client, msg });
@@ -75,21 +55,8 @@ function start() {
   });
 
   transport.on('disconnection', (client)=> {
-    let disconnectionCbs =  events.disconnection && Array.isArray(events.disconnection) || [];
-    P.all(disconnectionCbs).then(() => {
-      storeToPublish.publish(Consts.REDIS_CHANNEL, message.createToPublish({
-        me: createMe(client),
-        payload: message.createMessage({
-          path: 'presence/userOffline',
-          payload: {
-            ...createMe(client),
-            messageUUID: uuid.v1()
-          }
-        })
-      }));
-      client.__uuid = null;
-      client.__user = null;
-    });
+    inboundRouter.route({ path: 'presence/userOnline', client });
+    client.__uuid = null;
   });
 }
 
@@ -104,7 +71,6 @@ export default function init({ transport, storeToSubscribe, storeToPublish, inbo
     outboundRouter: OutboundRouter(outboundRoutes),
     publishedRouter: PublishedRouter(publishedRoutes),
     ...Options,
-    ...Events,
     start: start
   }
 }
