@@ -1,3 +1,5 @@
+require('source-map-support').install();
+
 import P from 'bluebird';
 import uuid from 'uuid';
 import InboundRouter from './components/InboundRouter/InboundRouter';
@@ -7,7 +9,7 @@ import * as message from './utils/message';
 import { createMe } from './utils/general';
 
 import Consts from './configs/constants';
-import * as Options from './configs/Options';
+import * as Options from './configs/options';
 
 function start() {
 

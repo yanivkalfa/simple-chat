@@ -1,10 +1,10 @@
 {
   "name": "simple-chat",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "server side chat handling request, responses, presistance",
   "main": "./lib/index.js",
   "scripts": {
-    "build:lib": "babel src --out-dir lib",
+    "build:lib": "babel src --out-dir lib --source-maps",
     "build": "npm run build:lib && node ./prepublish",
     "clean": "rimraf lib dist coverage",
     "lint": "eslint src test",
@@ -33,7 +33,7 @@
     "url": "https://github.com/yanivkalfa/simple-chat/issues"
   },
   "devDependencies": {
-    "babel-cli": "^6.3.17",
+    "babel-cli": "^6.24.1",
     "babel-core": "^6.3.26",
     "babel-eslint": "^5.0.0-beta9",
     "babel-plugin-check-es2015-constants": "^6.3.13",
@@ -73,6 +73,7 @@
     "isparta": "4.0.0",
     "istanbul": "^0.3.17",
     "mocha": "^2.2.5",
+    "nodemon": "^1.11.0",
     "rimraf": "^2.3.4",
     "webpack": "^1.11.0"
   },

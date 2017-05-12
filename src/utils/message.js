@@ -1,4 +1,4 @@
-import * as date from 'date';
+import * as date from './date';
 import uuid from 'uuid';
 
 export function createMessage({ headers, path, payload }) {

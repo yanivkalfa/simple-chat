@@ -1,18 +1,14 @@
 import P from 'bluebird';
 
 import OutboundRouter from '../OutboundRouter/OutboundRouter';
-import * as Options from '../../configs/Options';
+import * as Options from '../../configs/options';
 
 
 export function messageSendMessage({ path, me, msg, res, success }) {}
 export function messageForwardMessage({ path, me, msg, res, success }) {}
 export function messageSendMessageStatus({ path, me, msg, res, success }) {}
 export function chatSendChatState({ path, me, msg, res, success }) {}
-export function roomCreateRoom({ path, to, msg, res, success }) {
-
-
-  outboundRouter.route({ 'room/inviteToRoom', msg});
-}
+export function roomCreateRoom({ path, to, msg, res, success }) {}
 export function roomDeleteRoom({ path, me, msg, res, success }) {}
 export function roomInviteToRoom({ path, me, msg, res, success }) {}
 export function roomDeclineRoomInvitation({ path, me, msg, res, success }) {}

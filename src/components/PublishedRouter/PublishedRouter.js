@@ -9,15 +9,15 @@ let routes = [
   { path: 'chat/sendChatState',  controller: Ctrls.chatSendChatState },
   { path: 'room/createRoom',  controller: Ctrls.roomCreateRoom },
   { path: 'room/deleteRoom',  controller: Ctrls.roomDeleteRoom },
-  { path: 'room/inviteToRoom',  controller: Ctrls.roomInviteToRoom() },
+  { path: 'room/inviteToRoom',  controller: Ctrls.roomInviteToRoom },
   { path: 'room/declineRoomInvitation',  controller: Ctrls.roomDeclineRoomInvitation },
-  { path: 'room/acceptRoomInvitation',  controller: Ctrls.roomAcceptRoomInvitation() },
+  { path: 'room/acceptRoomInvitation',  controller: Ctrls.roomAcceptRoomInvitation },
   { path: 'room/kickFromRoom',  controller: Ctrls.roomKickFromRoom },
-  { path: 'room/LeaveRoom',  controller: Ctrls.roomLeaveRoom() },
+  { path: 'room/LeaveRoom',  controller: Ctrls.roomLeaveRoom },
   { path: 'room/renameRoom',  controller: Ctrls.roomRenameRoom },
-  { path: 'availability/setAvailability',  controller: Ctrls.availabilitySetAvailability() },
+  { path: 'availability/setAvailability',  controller: Ctrls.availabilitySetAvailability },
   { path: 'presence/userOnline',  controller: Ctrls.presenceUserOnline },
-  { path: 'presence/userOffline', controller: Ctrls.presenceUserOffline() }
+  { path: 'presence/userOffline', controller: Ctrls.presenceUserOffline }
 ];
 
 function setRoutes(Routes) {

@@ -1,4 +1,4 @@
-import * as Options from '../../configs/Options';
+import * as Options from '../../configs/options';
 
 export function outboundMessage({ path, sendTo, msg, res, success }) {}
 export function outboundMessageStatus({ path, sendTo, msg, res, success }) {}
