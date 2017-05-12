@@ -93,7 +93,7 @@ function route({ path, me, msg }) {
   return emptyPromise();
 }
 
-export default function init(Routes) {
+export default function init(Routes = []) {
   setRoutes(Routes);
 
   return {

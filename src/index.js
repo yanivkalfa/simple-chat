@@ -3,12 +3,13 @@ require('source-map-support').install();
 import P from 'bluebird';
 import uuid from 'uuid';
 import InboundRouter from './components/InboundRouter/InboundRouter';
+import OutboundRouter from './components/OutboundRouter/OutboundRouter';
 import PublishedRouter from './components/PublishedRouter/PublishedRouter';
 import * as Events from './components/Events/Events';
 import * as message from './utils/message';
 import { createMe } from './utils/general';
 
-import Consts from './configs/constants';
+import * as Consts from './configs/constants';
 import * as Options from './configs/options';
 
 function start() {

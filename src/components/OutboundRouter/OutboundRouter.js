@@ -87,7 +87,7 @@ function route({ path, sendTo = 'all', msg }) {
   return emptyPromise();
 }
 
-export default function init(Routes) {
+export default function init(Routes = []) {
   setRoutes(Routes);
 
   return {
