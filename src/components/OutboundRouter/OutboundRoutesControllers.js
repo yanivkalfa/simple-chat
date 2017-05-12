@@ -12,7 +12,7 @@ export function outboundPresence({ path, sendTo, msg, res, success }) {
   if ( success ) {
     if (sendTo === 'all') {
       let transport = Options.getTransport();
-      transport.broadcast(msg);
+      transport.write(msg);
     } else {
       sendTo.write(msg)
     }

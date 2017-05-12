@@ -55,7 +55,7 @@ function start() {
   });
 
   transport.on('disconnection', (client)=> {
-    inboundRouter.route({ path: 'presence/userOnline', client });
+    inboundRouter.route({ path: 'presence/userOffline', client });
     client.__uuid = null;
   });
 }

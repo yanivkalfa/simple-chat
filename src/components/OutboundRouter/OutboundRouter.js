@@ -72,12 +72,12 @@ function route({ path, sendTo = 'all', msg }) {
       return P.try(()=>{
         let alterMsg = route.alterMsg || emptyPromise;
         return alterMsg({ path, sendTo, msg });
-      }).then((  )=> {
-        res = { success: true, error: null };
+      }).then(( alterMsgResults )=> {
+        res.alterMsgResults = alterMsgResults;
         let controller = route.controller || emptyPromise;
         return controller({ path, sendTo, msg, res, success: true });
       }).catch((error) => {
-        res = { success: false, error };
+        res.error = error;
         let controller = route.controller || emptyPromise;
         controller({ path, sendTo, msg, res, success: false });
       });

@@ -22,14 +22,14 @@ export function presenceUserOnline({ path, me, msg, res, success }) {
   let outboundRouter = OutboundRouter();
 
   if ( success ) {
-    let { sendTo } = res;
+    let sendTo = res.sendToResults;
 
     if ( sendTo && Array.isArray(sendTo) ) {
       sendTo.forEach((client) => {
         outboundRouter.route({ path: 'OutboundPresence', sendTo: client, msg });
       });
     } else {
-      outboundRouter.route({ path: 'OutboundPresence', msg });
+      outboundRouter.route({ path: 'OutboundPresence', sendTo, msg });
     }
   }
 

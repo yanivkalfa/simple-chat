@@ -23,31 +23,35 @@ export function roomRenameRoom({ path, client, msg, res, success }) {}
 export function availabilitySetAvailability({ path, client, msg, res, success }) {}
 
 export function presenceUserOnline({ path, client, msg, res, success }) {
-  let storeToPublish = Options.getStoreToPublish();
-  let msgToPublish = {
-    me: createMe(client),
-    payload: message.createMessage({
-      path,
-      payload: {
-        ...createMe(client),
-        messageUUID: uuid.v1()
-      }
-    })
-  };
-  storeToPublish.publish(Consts.REDIS_CHANNEL, message.createToPublish(msgToPublish));
+  if ( success ){
+    let storeToPublish = Options.getStoreToPublish();
+    let msgToPublish = {
+      me: createMe(client, res),
+      payload: message.createMessage({
+        path,
+        payload: {
+          ...createMe(client, res),
+          messageUUID: uuid.v1()
+        }
+      })
+    };
+    storeToPublish.publish(Consts.REDIS_CHANNEL, message.createToPublish(msgToPublish));
+  }
 }
 
 export function presenceUserOffline({ path, client, msg, res, success }) {
-  let storeToPublish = Options.getStoreToPublish();
-  let msgToPublish = {
-    me: createMe(client),
-    payload: message.createMessage({
-      path,
-      payload: {
-        ...createMe(client),
-        messageUUID: uuid.v1()
-      }
-    })
-  };
-  storeToPublish.publish(Consts.REDIS_CHANNEL, message.createToPublish(msgToPublish));
+  if ( success ) {
+    let storeToPublish = Options.getStoreToPublish();
+    let msgToPublish = {
+      me: createMe(client, res),
+      payload: message.createMessage({
+        path,
+        payload: {
+          ...createMe(client, res),
+          messageUUID: uuid.v1()
+        }
+      })
+    };
+    storeToPublish.publish(Consts.REDIS_CHANNEL, message.createToPublish(msgToPublish));
+  }
 }

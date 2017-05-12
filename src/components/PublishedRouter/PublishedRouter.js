@@ -78,12 +78,12 @@ function route({ path, me, msg }) {
       return P.try(()=>{
         let sendTo = route.sendTo || emptyPromise;
         return sendTo({ path, me, msg });
-      }).then(( results )=> {
-        res = { success: true, results, error: null };
+      }).then(( sendToResults )=> {
+        res.sendToResults = sendToResults;
         let controller = route.controller || emptyPromise;
         return controller({ path, me, msg, res, success: true });
       }).catch((error) => {
-        res = { success: false, results: null, error };
+        res.error = error;
         let controller = route.controller || emptyPromise;
         return controller({ path, me, msg, res, success: false });
       });
