@@ -1,73 +1,76 @@
-import InboundRouter from './libs/InboundRouter/InboundRouter';
-import OutboundRouter from './libs/OutboundRouter/OutboundRouter';
-import EventEmitter from './libs/EventEmitter/EventEmitter';
-import Consts from './configs/constants';
+//require('source-map-support').install();
 
-export default class SimpleChat extends EventEmitter {
-  constructor({ transport, storeToSubscribe, storeToPublish, inboundRouts, outboundRoutes }) {
-    super();
-    this.transport = transport;
-    this.storeToSubscribe = storeToSubscribe;
-    this.storeToPublish = storeToPublish;
-    this.InboundRouter = new InboundRouter(inboundRouts || []);
-    this.OutboundRouter = new OutboundRouter(outboundRoutes || []);
-    this.isReady = false;
+import P from 'bluebird';
+import uuid from 'uuid';
+import InboundRouter from './components/InboundRouter/InboundRouter';
+import OutboundRouter from './components/OutboundRouter/OutboundRouter';
+import PublishedRouter from './components/PublishedRouter/PublishedRouter';
+
+import * as Consts from './configs/constants';
+import * as Options from './configs/options';
+
+function start() {
+
+  let transport = Options.getTransport();
+  let storeToSubscribe = Options.getStoreToSubscribe();
+  let storeToPublish = Options.getStoreToPublish();
+
+  let inboundRouter = InboundRouter();
+  let publishedRouter = PublishedRouter();
+
+  if( !storeToSubscribe || !storeToPublish ) {
+    return false;
   }
 
-  setTransport(transport) {
-    this.transport = transport;
-  }
-
-  setStoreToSubscribe(storeToSubscribe) {
-    this.storeToSubscribe = storeToSubscribe;
-  }
-
-  setStoreToPublish(storeToPublish) {
-    this.storeToPublish = storeToPublish;
-  }
-
-  setInboundRouter(InboundRouter) {
-    this.InboundRouter = InboundRouter;
-  }
-
-  setOutboundRouter(OutboundRouter) {
-    this.OutboundRouter = OutboundRouter;
-  }
-
-  inboundRouter() {
-    return this.InboundRouter;
-  }
-
-  outboundRouter() {
-    return this.OutboundRouter;
-  }
-
-  start() {
-
-    if( !this.storeToSubscribe || !this.storeToPublish ) {
-      return false;
-    }
-
-    this.storeToSubscribe.subscribe("SIMPLE-CHAT");
-
-    this.transport.on('connection', (client)=> {
-      if ( this.events.connection &&  Array.isArray(this.events.connection) ) {
-        P.all(this.events.connection).then((results) => {
-          client.__user = results[0];
-          this.storeToPublish.publish('SIMPLE-CHAT', Consts.OUTBOUND_PRESENCE);
-        });
+  Options.setIsReady(true);
+  storeToSubscribe.subscribe(Consts.REDIS_CHANNEL);
+  storeToSubscribe.on("message", function (channel, message) {
+    if (channel == Consts.REDIS_CHANNEL) {
+      let msg = null;
+      try {
+        msg = JSON.parse(message);
+      } catch(e) {
+        console.log('Unable to parse message');
       }
 
+      if ( !msg ) {
+        return false;
+      }
 
+      publishedRouter.route({
+        path: msg.payload.path,
+        me: msg.me,
+        msg: msg.payload
+      });
+    }
+  });
+
+  transport.on('connection', (client) => {
+    client.__uuid = uuid.v1();
+    inboundRouter.route({ path: 'presence/userOnline', client });
+
+    client.on('inboundMessage', function (msg) {
+      inboundRouter.route({ path: msg.path, client, msg });
     });
+  });
 
-    this.transport.on('disconnection', (client)=> {
+  transport.on('disconnection', (client)=> {
+    inboundRouter.route({ path: 'presence/userOffline', client });
+    client.__uuid = null;
+  });
+}
 
-    });
+export default function init({ transport, storeToSubscribe, storeToPublish, inboundRouts, outboundRoutes, publishedRoutes }) {
+  Options.setTransport(transport);
+  Options.setStoreToSubscribe(storeToSubscribe);
+  Options.setStoreToPublish(storeToPublish);
+  Options.setIsReady(false);
 
-    this.transport.on('end', ()=> {
-
-    });
-
+  return {
+    inboundRouter: InboundRouter(inboundRouts),
+    outboundRouter: OutboundRouter(outboundRoutes),
+    publishedRouter: PublishedRouter(publishedRoutes),
+    ...Options,
+    start: start
   }
 }
