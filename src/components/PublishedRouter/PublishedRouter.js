@@ -75,14 +75,14 @@ function route({ path, me, msg }) {
   for( i; i < l; i++ ) {
     let route = routes[i];
     if (route.path === path) {
-      return P.try(()=>{
+      return P.try( function sendTo() {
         let sendTo = route.sendTo || emptyPromise;
         return sendTo({ path, me, msg });
-      }).then(( sendToResults )=> {
+      }).then( function routeController( sendToResults ) {
         res.sendToResults = sendToResults;
         let controller = route.controller || emptyPromise;
         return controller({ path, me, msg, res, success: true });
-      }).catch((error) => {
+      }).catch( function routeCatch(error) => {
         res.error = error;
         let controller = route.controller || emptyPromise;
         return controller({ path, me, msg, res, success: false });

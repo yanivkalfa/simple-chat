@@ -24,7 +24,7 @@ function start() {
 
   Options.setIsReady(true);
   storeToSubscribe.subscribe(Consts.REDIS_CHANNEL);
-  storeToSubscribe.on("message", function (channel, message) {
+  storeToSubscribe.on("message", function subOnMessage(channel, message) {
     if (channel == Consts.REDIS_CHANNEL) {
       let msg = null;
       try {
@@ -45,16 +45,14 @@ function start() {
     }
   });
 
-  transport.on('connection', (client) => {
+  transport.on('connection', function transportOnConnection(client) {
     client.__uuid = uuid.v1();
-    inboundRouter.route({ path: 'presence/userOnline', client });
-
-    client.on('inboundMessage', function (msg) {
+    client.on('data', function clientOnData(msg) {
       inboundRouter.route({ path: msg.path, client, msg });
     });
   });
 
-  transport.on('disconnection', (client)=> {
+  transport.on('disconnection', function transportOnDisconnection(client) {
     inboundRouter.route({ path: 'presence/userOffline', client });
     client.__uuid = null;
   });

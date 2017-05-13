@@ -1,7 +1,6 @@
 import P from 'bluebird';
 import * as Ctrls from './InboundRoutesControllers';
 import { emptyPromise } from '../../utils/functions';
-
 import { findUserName } from '../../utils/general';
 
 let routes = [
@@ -79,19 +78,19 @@ function route({ path, client, msg }) {
   for( i; i < l; i++ ) {
     let route = routes[i];
     if (route.path === path) {
-      return P.try(()=>{
+      return P.try( function hasAccess() {
         let hasAccess = route.hasAccess || emptyPromise;
         return hasAccess({ path, client, msg });
-      }).then(( hasAccessResults )=> {
+      }).then( function success( hasAccessResults ) {
         res.hasAccessResults = hasAccessResults;
         res.userName = findUserName(hasAccessResults);
         let success = route.success || emptyPromise;
         return success({ path, client, msg, res });
-      }).then(( successResults )=> {
+      }).then( function routeController( successResults ) {
         res.successResults = successResults;
         let controller = route.controller || emptyPromise;
         return controller({ path, client, msg, res, success: true });
-      }).catch((error) => {
+      }).catch( function routeCatch(error) {
         res.error = error;
         let failure = route.failure || emptyPromise;
         failure({ path, client, msg, res });

@@ -2,6 +2,8 @@ import P from 'bluebird';
 import * as Ctrls from './OutboundRoutesControllers';
 import { emptyPromise } from '../../utils/functions';
 
+import * as Options from '../../configs/options';
+
 let routes = [
   { path: 'OutboundMessage', controller: Ctrls.outboundMessage },
   { path: 'OutboundMessageStatus', controller: Ctrls.outboundMessageStatus },
@@ -27,7 +29,7 @@ function getRoutes() {
   return routes;
 }
 
-function use({ path, alterMsg, controller }) {
+function use({ path, prepareMsg, alterMsg, controller }) {
 
   if ( typeof path !== 'string') {
     throw new Error('Supplied path parameter is not a string');
@@ -62,24 +64,37 @@ function remove(path){
   return false;
 }
 
-function route({ path, sendTo = 'all', msg }) {
+export function sendOutboundMessage({ sendTo, msg }) {
+  return new P((resolve, reject) => {
+    if (sendTo === 'all') {
+      let transport = Options.getTransport();
+      transport.write(msg);
+    } else {
+      sendTo.write(msg);
+    }
+    return resolve();
+  });
+}
+
+function route({ path, sendTo = 'all', rawMsg }) {
   let l = routes.length, i = 0;
-  let res = {};
+  let msg = {};
 
   for( i; i < l; i++ ) {
     let route = routes[i];
     if (route.path === path) {
-      return P.try(()=>{
+      return P.try( function routeController( ) => {
+        let controller = route.controller || emptyPromise;
+        return controller({ path, sendTo, rawMsg });
+      }).then( function alterMsg( preparedMsg ) => {
+        msg = preparedMsg;
         let alterMsg = route.alterMsg || emptyPromise;
         return alterMsg({ path, sendTo, msg });
-      }).then(( alterMsgResults )=> {
-        res.alterMsgResults = alterMsgResults;
-        let controller = route.controller || emptyPromise;
-        return controller({ path, sendTo, msg, res, success: true });
-      }).catch((error) => {
-        res.error = error;
-        let controller = route.controller || emptyPromise;
-        controller({ path, sendTo, msg, res, success: false });
+      }).then( function outboundMessage( alterMsgResults ) => {
+        msg = alterMsgResults || msg;
+        return sendOutboundMessage({ sendTo, msg });
+      }).catch( function routeCatch(error) => {
+        console.log('We had an error: ', error);
       });
     }
   }
