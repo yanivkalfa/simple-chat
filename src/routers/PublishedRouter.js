@@ -3,8 +3,8 @@ import { emptyPromise } from '../utils/function';
 import Router from './Router';
 
 
-export default class InboundRouter extends Router {
-  constructor(list = []) {
+export default class PublishedRouter extends Router {
+  constructor(list) {
     super(list);
   }
 
@@ -29,14 +29,14 @@ export default class InboundRouter extends Router {
     for( i; i < l; i++ ) {
       let route = this.list[i];
       if (route.action === action) {
-        return P.try( function sendTo() {
+        return P.try( function routeSendTo() {
           let sendTo = route.sendTo || emptyPromise;
           return sendTo({ action, me, msg });
         }).then( function routeController( sendToResults ) {
           res.sendToResults = sendToResults;
           let controller = route.controller || emptyPromise;
           return controller({ action, me, msg, res, success: true });
-        }).catch( function routeCatch(error) => {
+        }).catch( function routeCatch(error) {
           res.error = error;
           let controller = route.controller || emptyPromise;
           return controller({ action, me, msg, res, success: false });

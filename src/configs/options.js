@@ -1,10 +1,12 @@
 let transport = null;
 let storeToSubscribe = null;
 let storeToPublish = null;
+let namespaceRouter = null;
 let isReady = false;
 let stringPath = false;
 
 
+/* Setters */
 export function setTransport(Transport) {
   transport = Transport;
 }
@@ -25,8 +27,13 @@ export function setStringPath(StringPath) {
   stringPath = typeof StringPath === 'boolean' ? StringPath : stringPath;
 }
 
+export function setNamespaceRouter(NamespaceRouter) {
+  namespaceRouter = NamespaceRouter;
+}
 
 
+
+/* Getters */
 export function getTransport() {
   return transport;
 }
@@ -45,4 +52,8 @@ export function getIsReady() {
 
 export function getStringPath() {
   return stringPath;
+}
+
+export function getNamespaceRouter() {
+  return namespaceRouter;
 }

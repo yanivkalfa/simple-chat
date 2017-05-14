@@ -5,7 +5,7 @@ import { findUserName } from '../utils/general';
 export default class Router {
   
   constructor(list = []) {
-    this.List = list || [];
+    this.List = list;
     this.propName = 'action';
   }
   

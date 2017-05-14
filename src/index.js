@@ -12,6 +12,7 @@ function start() {
   let transport = Options.getTransport();
   let storeToSubscribe = Options.getStoreToSubscribe();
   let storeToPublish = Options.getStoreToPublish();
+  let namespaceRouter = Options.getNamespaceRouter();
 
   if( !storeToSubscribe || !storeToPublish ) {
     return false;
@@ -32,29 +33,30 @@ function start() {
         return false;
       }
 
-      NamespaceRouter.route({ direction: 'published', path: msg.path, me: msg.me,  msg });
+      namespaceRouter.route({ direction: 'published', path: msg.path, me: msg.me,  msg });
     }
   });
 
   transport.on('connection', function transportOnConnection(client) {
     client.__uuid = uuid.v1();
-    NamespaceRouter.route({ direction: 'inbound', path: { namespace: 'presence', action: 'userOnline' }, client });
+    namespaceRouter.route({ direction: 'inbound', path: { namespace: 'presence', action: 'userOnline' }, client });
 
     client.on('data', function clientOnData(msg) {
-      NamespaceRouter.route({ direction: 'inbound', path: msg.path, client, msg });
+      namespaceRouter.route({ direction: 'inbound', path: msg.path, client, msg });
     });
   });
 
   transport.on('disconnection', function transportOnDisconnection(client) {
-    NamespaceRouter.route({ direction: 'inbound', path: { namespace: 'presence', action: 'userOffline' }, client });
+    namespaceRouter.route({ direction: 'inbound', path: { namespace: 'presence', action: 'userOffline' }, client });
     client.__uuid = null;
   });
 }
 
-export default function init({ transport, storeToSubscribe, storeToPublish, inboundRouts, outboundRoutes, publishedRoutes, stringPath }) {
+export default function init({ transport, storeToSubscribe, storeToPublish, stringPath, namespace }) {
   Options.setTransport(transport);
   Options.setStoreToSubscribe(storeToSubscribe);
   Options.setStoreToPublish(storeToPublish);
+  Options.setNamespaceRouter(new NamespaceRouter(namespace));
   Options.setIsReady(false);
   Options.setStringPath(stringPath);
 

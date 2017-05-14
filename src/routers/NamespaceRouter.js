@@ -4,7 +4,7 @@ import { parsePath } from '../utils/router';
 import Router from './Router';
 
 export default class NamespaceRouter extends Router {
-  constructor(list = []) {
+  constructor(list) {
     super(list);
     this.propName = 'name';
   }

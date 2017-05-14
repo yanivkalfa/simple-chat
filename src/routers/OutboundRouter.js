@@ -4,8 +4,8 @@ import { sendOutboundMessage } from '../utils/router';
 import Router from './Router';
 
 
-export default class InboundRouter extends Router {
-  constructor(list = []) {
+export default class OutboundRouter extends Router {
+  constructor(list) {
     super(list);
   }
 
@@ -30,17 +30,17 @@ export default class InboundRouter extends Router {
     for( i; i < l; i++ ) {
       let route = this.list[i];
       if (route.action === action) {
-        return P.try( function routeController( ) => {
+        return P.try( function routeController( ) {
           let controller = route.controller || emptyPromise;
           return controller({ action, sendTo, rawMsg });
-        }).then( function alterMsg( preparedMsg ) => {
+        }).then( function routeAlterMsg( preparedMsg ) {
           msg = preparedMsg;
           let alterMsg = route.alterMsg || emptyPromise;
           return alterMsg({ action, sendTo, msg });
-        }).then( function outboundMessage( alterMsgResults ) => {
+        }).then( function outboundMessage( alterMsgResults ) {
           msg = alterMsgResults || msg;
           return sendOutboundMessage({ sendTo, msg });
-        }).catch( function routeCatch(error) => {
+        }).catch( function routeCatch(error) {
           console.log('We had an error: ', error);
         });
       }

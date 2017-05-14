@@ -4,7 +4,7 @@ import { findUserName } from '../utils/general';
 import Router from './Router';
 
 export default class InboundRouter extends Router {
-  constructor(list = []) {
+  constructor(list) {
     super(list);
   }
 
@@ -31,10 +31,10 @@ export default class InboundRouter extends Router {
     for( i; i < l; i++ ) {
       let route = this.list[i];
       if (route.action === action) {
-        return P.try( function hasAccess() {
+        return P.try( function routeHasAccess() {
           let hasAccess = route.hasAccess || emptyPromise;
           return hasAccess({ action, client, msg });
-        }).then( function success( hasAccessResults ) {
+        }).then( function routeSuccess( hasAccessResults ) {
           res.hasAccessResults = hasAccessResults;
           res.userName = findUserName(hasAccessResults);
           let success = route.success || emptyPromise;
