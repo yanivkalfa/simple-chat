@@ -2,9 +2,7 @@
 
 import P from 'bluebird';
 import uuid from 'uuid';
-import InboundRouter from './components/InboundRouter/InboundRouter';
-import OutboundRouter from './components/OutboundRouter/OutboundRouter';
-import PublishedRouter from './components/PublishedRouter/PublishedRouter';
+import NamespaceRouter from './routers/NamespaceRouter';
 
 import * as Consts from './configs/constants';
 import * as Options from './configs/options';
@@ -14,9 +12,6 @@ function start() {
   let transport = Options.getTransport();
   let storeToSubscribe = Options.getStoreToSubscribe();
   let storeToPublish = Options.getStoreToPublish();
-
-  let inboundRouter = InboundRouter();
-  let publishedRouter = PublishedRouter();
 
   if( !storeToSubscribe || !storeToPublish ) {
     return false;
@@ -37,6 +32,12 @@ function start() {
         return false;
       }
 
+      Namespacer.route({ namespace: msg.payload.namespace, action: msg.payload.action, msg: msg.payload , me: msg.payload});
+
+
+      //{ action, me, msg }
+      NamespaceRouter.route({ direction: 'published', path: { namespace: 'presence', action: 'userOnline' }, client });
+
       publishedRouter.route({
         path: msg.payload.path,
         me: msg.me,
@@ -47,27 +48,27 @@ function start() {
 
   transport.on('connection', function transportOnConnection(client) {
     client.__uuid = uuid.v1();
+    NamespaceRouter.route({ direction: 'inbound', path: { namespace: 'presence', action: 'userOnline' }, client });
+
     client.on('data', function clientOnData(msg) {
-      inboundRouter.route({ path: msg.path, client, msg });
+      NamespaceRouter.route({ direction: 'inbound', path: msg.path, client, msg });
     });
   });
 
   transport.on('disconnection', function transportOnDisconnection(client) {
-    inboundRouter.route({ path: 'presence/userOffline', client });
+    NamespaceRouter.route({ direction: 'inbound', path: { namespace: 'presence', action: 'userOffline' }, client });
     client.__uuid = null;
   });
 }
 
-export default function init({ transport, storeToSubscribe, storeToPublish, inboundRouts, outboundRoutes, publishedRoutes }) {
+export default function init({ transport, storeToSubscribe, storeToPublish, inboundRouts, outboundRoutes, publishedRoutes, stringPath }) {
   Options.setTransport(transport);
   Options.setStoreToSubscribe(storeToSubscribe);
   Options.setStoreToPublish(storeToPublish);
   Options.setIsReady(false);
+  Options.setStringPath(stringPath);
 
   return {
-    inboundRouter: InboundRouter(inboundRouts),
-    outboundRouter: OutboundRouter(outboundRoutes),
-    publishedRouter: PublishedRouter(publishedRoutes),
     ...Options,
     start: start
   }

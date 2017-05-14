@@ -2,6 +2,7 @@ let transport = null;
 let storeToSubscribe = null;
 let storeToPublish = null;
 let isReady = false;
+let stringPath = false;
 
 
 export function setTransport(Transport) {
@@ -20,6 +21,10 @@ export function setIsReady(IsReady) {
   isReady = IsReady;
 }
 
+export function setStringPath(StringPath) {
+  stringPath = typeof StringPath === 'boolean' ? StringPath : stringPath;
+}
+
 
 
 export function getTransport() {
@@ -36,4 +41,8 @@ export function getStoreToPublish() {
 
 export function getIsReady() {
   return isReady;
+}
+
+export function getStringPath() {
+  return stringPath;
 }
