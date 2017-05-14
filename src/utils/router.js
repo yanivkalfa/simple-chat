@@ -1,3 +1,4 @@
+import P from 'bluebird';
 import * as Options from '../configs/options';
 
 export function parsePath(path) {

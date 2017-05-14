@@ -4,6 +4,7 @@ import P from 'bluebird';
 import uuid from 'uuid';
 import NamespaceRouter from './routers/NamespaceRouter';
 
+import { addBuiltInNamespaces } from './utils/namespace';
 import * as Consts from './configs/constants';
 import * as Options from './configs/options';
 
@@ -59,6 +60,7 @@ export default function init({ transport, storeToSubscribe, storeToPublish, stri
   Options.setNamespaceRouter(new NamespaceRouter(namespace));
   Options.setIsReady(false);
   Options.setStringPath(stringPath);
+  addBuiltInNamespaces();
 
   return {
     ...Options,

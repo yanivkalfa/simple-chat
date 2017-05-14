@@ -37,7 +37,7 @@ export default class OutboundRouter extends Router {
           msg = preparedMsg;
           let alterMsg = route.alterMsg || emptyPromise;
           return alterMsg({ action, sendTo, msg });
-        }).then( function outboundMessage( alterMsgResults ) {
+        }).then( function routeSendOutboundMessage( alterMsgResults ) {
           msg = alterMsgResults || msg;
           return sendOutboundMessage({ sendTo, msg });
         }).catch( function routeCatch(error) {
