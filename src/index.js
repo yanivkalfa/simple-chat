@@ -32,17 +32,7 @@ function start() {
         return false;
       }
 
-      Namespacer.route({ namespace: msg.payload.namespace, action: msg.payload.action, msg: msg.payload , me: msg.payload});
-
-
-      //{ action, me, msg }
-      NamespaceRouter.route({ direction: 'published', path: { namespace: 'presence', action: 'userOnline' }, client });
-
-      publishedRouter.route({
-        path: msg.payload.path,
-        me: msg.me,
-        msg: msg.payload
-      });
+      NamespaceRouter.route({ direction: 'published', path: msg.path, me: msg.me,  msg });
     }
   });
 

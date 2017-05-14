@@ -1,7 +1,7 @@
 import P from 'bluebird';
-import { createNamespace } from '../../utils/namespace';
-import { parsePath } from '../../utils/router';
-import Router from '../Router/Router';
+import { createNamespace } from '../utils/namespace';
+import { parsePath } from '../utils/router';
+import Router from './Router';
 
 export default class NamespaceRouter extends Router {
   constructor(list = []) {

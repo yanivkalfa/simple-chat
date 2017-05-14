@@ -1,7 +1,7 @@
 import P from 'bluebird';
-import { emptyPromise } from '../../utils/function';
-import { sendOutboundMessage } from '../../utils/router';
-import Router from '../Router/Router';
+import { emptyPromise } from '../utils/function';
+import { sendOutboundMessage } from '../utils/router';
+import Router from './Router';
 
 
 export default class InboundRouter extends Router {

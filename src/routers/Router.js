@@ -1,6 +1,6 @@
 import P from 'bluebird';
-import { emptyPromise } from '../../utils/function';
-import { findUserName } from '../../utils/general';
+import { emptyPromise } from '../utils/function';
+import { findUserName } from '../utils/general';
 
 export default class Router {
   

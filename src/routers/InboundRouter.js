@@ -1,7 +1,7 @@
 import P from 'bluebird';
-import { emptyPromise } from '../../utils/function';
-import { findUserName } from '../../utils/general';
-import Router from '../Router/Router';
+import { emptyPromise } from '../utils/function';
+import { findUserName } from '../utils/general';
+import Router from './Router';
 
 export default class InboundRouter extends Router {
   constructor(list = []) {
