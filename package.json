@@ -1,6 +1,6 @@
 {
   "name": "simple-chat",
-  "version": "0.0.13",
+  "version": "0.0.16",
   "description": "server side chat handling request, responses, presistance",
   "main": "./lib/index.js",
   "scripts": {
