@@ -1,24 +1,18 @@
 import * as Options from '../../configs/options';
 
-export function outboundMessage({ path, sendTo, msg, res, success }) {}
-export function outboundMessageStatus({ path, sendTo, msg, res, success }) {}
-export function outboundAcknowledgement({ path, sendTo, msg, res, success }) {}
-export function outboundChatState({ path, sendTo, msg, res, success }) {}
-export function outboundLoggedInElsewhere({ path, sendTo, msg, res, success }) {}
-export function outboundRosterEvent({ path, sendTo, msg, res, success }) {}
-export function outboundInvitation({ path, sendTo, msg, res, success }) {}
-export function outboundRoomEvent({ path, sendTo, msg, res, success }) {}
-export function outboundPresence({ path, sendTo, msg, res, success }) {
-  if ( success ) {
-    if (sendTo === 'all') {
-      let transport = Options.getTransport();
-      transport.write(msg);
-    } else {
-      sendTo.write(msg)
+export function outboundMessage({ path, sendTo, rawMsg }) {}
+export function outboundMessageStatus({ path, sendTo, rawMsg }) {}
+export function outboundAcknowledgement({ path, sendTo, rawMsg }) {}
+export function outboundChatState({ path, sendTo, rawMsg }) {}
+export function outboundLoggedInElsewhere({ path, sendTo, rawMsg }) {}
+export function outboundRosterEvent({ path, sendTo, rawMsg }) {}
+export function outboundInvitation({ path, sendTo, rawMsg }) {}
+export function outboundRoomEvent({ path, sendTo, rawMsg }) {}
+export function outboundPresence({ path, sendTo, rawMsg }) {
+  return message.createMessage({
+    path: 'OutboundPresence',
+    payload: {
+      path:'a'
     }
-  }
+  })
 }
-
-
-
-

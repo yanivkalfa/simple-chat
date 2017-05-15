@@ -2,10 +2,9 @@
 
 import P from 'bluebird';
 import uuid from 'uuid';
-import InboundRouter from './components/InboundRouter/InboundRouter';
-import OutboundRouter from './components/OutboundRouter/OutboundRouter';
-import PublishedRouter from './components/PublishedRouter/PublishedRouter';
+import NamespaceRouter from './routers/NamespaceRouter';
 
+import { addBuiltInNamespaces } from './utils/namespace';
 import * as Consts from './configs/constants';
 import * as Options from './configs/options';
 
@@ -14,9 +13,7 @@ function start() {
   let transport = Options.getTransport();
   let storeToSubscribe = Options.getStoreToSubscribe();
   let storeToPublish = Options.getStoreToPublish();
-
-  let inboundRouter = InboundRouter();
-  let publishedRouter = PublishedRouter();
+  let namespaceRouter = Options.getNamespaceRouter();
 
   if( !storeToSubscribe || !storeToPublish ) {
     return false;
@@ -24,7 +21,7 @@ function start() {
 
   Options.setIsReady(true);
   storeToSubscribe.subscribe(Consts.REDIS_CHANNEL);
-  storeToSubscribe.on("message", function (channel, message) {
+  storeToSubscribe.on("message", function subOnMessage(channel, message) {
     if (channel == Consts.REDIS_CHANNEL) {
       let msg = null;
       try {
@@ -37,39 +34,35 @@ function start() {
         return false;
       }
 
-      publishedRouter.route({
-        path: msg.payload.path,
-        me: msg.me,
-        msg: msg.payload
-      });
+      namespaceRouter.route({ direction: 'published', path: msg.path, me: msg.me,  msg });
     }
   });
 
-  transport.on('connection', (client) => {
+  transport.on('connection', function transportOnConnection(client) {
     client.__uuid = uuid.v1();
-    inboundRouter.route({ path: 'presence/userOnline', client });
+    namespaceRouter.route({ direction: 'inbound', path: { namespace: 'presence', action: 'userOnline' }, client });
 
-    client.on('inboundMessage', function (msg) {
-      inboundRouter.route({ path: msg.path, client, msg });
+    client.on('data', function clientOnData(msg) {
+      namespaceRouter.route({ direction: 'inbound', path: msg.path, client, msg });
     });
   });
 
-  transport.on('disconnection', (client)=> {
-    inboundRouter.route({ path: 'presence/userOffline', client });
+  transport.on('disconnection', function transportOnDisconnection(client) {
+    namespaceRouter.route({ direction: 'inbound', path: { namespace: 'presence', action: 'userOffline' }, client });
     client.__uuid = null;
   });
 }
 
-export default function init({ transport, storeToSubscribe, storeToPublish, inboundRouts, outboundRoutes, publishedRoutes }) {
+export default function init({ transport, storeToSubscribe, storeToPublish, stringPath, namespace }) {
   Options.setTransport(transport);
   Options.setStoreToSubscribe(storeToSubscribe);
   Options.setStoreToPublish(storeToPublish);
+  Options.setNamespaceRouter(new NamespaceRouter(namespace));
   Options.setIsReady(false);
+  Options.setStringPath(stringPath);
+  addBuiltInNamespaces();
 
   return {
-    inboundRouter: InboundRouter(inboundRouts),
-    outboundRouter: OutboundRouter(outboundRoutes),
-    publishedRouter: PublishedRouter(publishedRoutes),
     ...Options,
     start: start
   }
