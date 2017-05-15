@@ -4,7 +4,7 @@ import P from 'bluebird';
 import uuid from 'uuid';
 import NamespaceRouter from './routers/NamespaceRouter';
 
-import { addBuiltInNamespaces } from './utils/namespace';
+import { bulkAddNamespaces } from './utils/namespace';
 import * as Consts from './configs/constants';
 import * as Options from './configs/options';
 
@@ -53,17 +53,18 @@ function start() {
   });
 }
 
-export default function init({ transport, storeToSubscribe, storeToPublish, stringPath, namespace }) {
+export default function init({ transport, storeToSubscribe, storeToPublish, stringPath, namespaces }) {
   Options.setTransport(transport);
   Options.setStoreToSubscribe(storeToSubscribe);
   Options.setStoreToPublish(storeToPublish);
-  Options.setNamespaceRouter(new NamespaceRouter(namespace));
+  Options.setNamespaceRouter(new NamespaceRouter(namespaces));
   Options.setIsReady(false);
   Options.setStringPath(stringPath);
-  addBuiltInNamespaces();
+  bulkAddNamespaces();
 
   return {
     ...Options,
-    start: start
+    start: start,
+    bulkAddNamespaces
   }
 }

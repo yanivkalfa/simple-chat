@@ -13,10 +13,10 @@ export function createNamespace(name) {
   }
 }
 
-export function addBuiltInNamespaces() {
+export function bulkAddNamespaces( userNamespaces ) {
   let namespaceRouter = Options.getNamespaceRouter();
 
-  (namespaces || []).forEach(function namespaceIterator(namespaceConfig) {
+  ( userNamespaces|| namespaces || [] ).forEach(function namespaceIterator(namespaceConfig) {
     let { name, actions } = namespaceConfig;
     let namespace = namespaceRouter.use(name);
 
