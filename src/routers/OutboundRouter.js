@@ -23,20 +23,20 @@ export default class OutboundRouter extends Router {
     }
   }
 
-  route({ action, sendTo, rawMsg }) {
+  route({ path, sendTo, rawMsg }) {
     let l = this.list.length, i = 0;
     let msg = {};
 
     for( i; i < l; i++ ) {
       let route = this.list[i];
-      if (route.action === action) {
+      if (route.action === path.action) {
         return P.try( function routeController( ) {
           let controller = route.controller || emptyPromise;
-          return controller({ action, sendTo, rawMsg });
+          return controller({ path, sendTo, rawMsg });
         }).then( function routeAlterMsg( preparedMsg ) {
           msg = preparedMsg;
           let alterMsg = route.alterMsg || emptyPromise;
-          return alterMsg({ action, sendTo, msg });
+          return alterMsg({ path, sendTo, msg });
         }).then( function routeSendOutboundMessage( alterMsgResults ) {
           msg = alterMsgResults || msg;
           return sendOutboundMessage({ sendTo, msg });
@@ -46,6 +46,6 @@ export default class OutboundRouter extends Router {
       }
     }
 
-    throw new Error(`Could not found route for: ${action}`);
+    throw new Error(`Could not found route for: ${path.action}`);
   }
 }

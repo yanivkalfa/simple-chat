@@ -24,35 +24,35 @@ export default class InboundRouter extends Router {
     }
   }
 
-  route({ action, client, msg }) {
+  route({ path, client, msg }) {
     let l = this.list.length, i = 0;
     let res = {};
 
     for( i; i < l; i++ ) {
       let route = this.list[i];
-      if (route.action === action) {
+      if (route.action === path.action) {
         return P.try( function routeHasAccess() {
           let hasAccess = route.hasAccess || emptyPromise;
-          return hasAccess({ action, client, msg });
+          return hasAccess({ path, client, msg });
         }).then( function routeSuccess( hasAccessResults ) {
           res.hasAccessResults = hasAccessResults;
           res.userName = findUserName(hasAccessResults);
           let success = route.success || emptyPromise;
-          return success({ action, client, msg, res });
+          return success({ path, client, msg, res });
         }).then( function routeController( successResults ) {
           res.successResults = successResults;
           let controller = route.controller || emptyPromise;
-          return controller({ action, client, msg, res, success: true });
+          return controller({ path, client, msg, res, success: true });
         }).catch( function routeCatch(error) {
           res.error = error;
           let failure = route.failure || emptyPromise;
-          failure({ action, client, msg, res });
+          failure({ path, client, msg, res });
           let controller = route.controller || emptyPromise;
-          controller({ action, client, msg, res, success: false });
+          controller({ path, client, msg, res, success: false });
         });
       }
     }
 
-    throw new Error(`Could not found route for: ${action}`);
+    throw new Error(`Could not found route for: ${path.action}`);
   }
 }

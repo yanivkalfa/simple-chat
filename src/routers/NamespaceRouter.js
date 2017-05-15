@@ -23,21 +23,21 @@ export default class NamespaceRouter extends Router {
     return namespace;
   }
 
-  route({ direction, path, client, msg, me, sendTo }) {
-    let { namespace, action } = parsePath(path);
-    let foundNamespace =  this.find(namespace);
+  route({ direction, path, client, msg = {}, me, sendTo }) {
+    msg.path = path = parsePath(path); // making sure path is always an object so it will be easier to work with.
+    let foundNamespace =  this.find(path.namespace);
     direction = direction.toLowerCase();
     if ( foundNamespace ) {
       if ( direction === 'inbound') {
-        return foundNamespace.inboundRouter.route({ action, client, msg });
+        return foundNamespace.inboundRouter.route({ path, client, msg });
       }
 
       if ( direction === 'published') {
-        return foundNamespace.publishedRouter.route({ action, me, msg });
+        return foundNamespace.publishedRouter.route({ path, me, msg });
       }
 
       if ( direction === 'outbound') {
-        return foundNamespace.outboundRouter.route({ action, sendTo, rawMsg: msg });
+        return foundNamespace.outboundRouter.route({ path, sendTo, rawMsg: msg });
       }
 
     }

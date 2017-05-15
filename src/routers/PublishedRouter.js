@@ -22,28 +22,28 @@ export default class PublishedRouter extends Router {
     }
   }
 
-  route({ action, me, msg }) {
+  route({ path, me, msg }) {
     let l = this.list.length, i = 0;
     let res = {};
 
     for( i; i < l; i++ ) {
       let route = this.list[i];
-      if (route.action === action) {
+      if (route.action === path.action) {
         return P.try( function routeSendTo() {
           let sendTo = route.sendTo || emptyPromise;
-          return sendTo({ action, me, msg });
+          return sendTo({ path, me, msg });
         }).then( function routeController( sendToResults ) {
           res.sendToResults = sendToResults;
           let controller = route.controller || emptyPromise;
-          return controller({ action, me, msg, res, success: true });
+          return controller({ path, me, msg, res, success: true });
         }).catch( function routeCatch(error) {
           res.error = error;
           let controller = route.controller || emptyPromise;
-          return controller({ action, me, msg, res, success: false });
+          return controller({ path, me, msg, res, success: false });
         });
       }
     }
 
-    throw new Error(`Could not found route for: ${action}`);
+    throw new Error(`Could not found route for: ${path.action}`);
   }
 }

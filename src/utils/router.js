@@ -20,6 +20,10 @@ export function parsePath(path) {
   throw new Error('Unable to parse path, path should either be a string or an object with namespace and action properties');
 }
 
+export function stringifyPath(path) {
+  return `${ path.namespace }/${ path.action }`;
+}
+
 export function sendOutboundMessage({ sendTo, msg }) {
   return new P((resolve, reject) => {
     if (sendTo === 'all') {
